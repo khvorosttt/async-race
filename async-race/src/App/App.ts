@@ -3,13 +3,13 @@ import HeaderView from './View/Header/header-view';
 import Component from './utils/base-component';
 import { isNull } from './utils/base-methods';
 import './app.css';
-import './normalize.css'
+import './normalize.css';
 import GarageView from './GarageView/GarageView';
 import View from './View/view';
 
 export default class App {
     container: HTMLElement;
-    
+
     router: Router;
 
     header: HeaderView;
@@ -26,15 +26,12 @@ export default class App {
         isNull(headerContainer);
         this.container.append(headerContainer, this.contentContainer);
         this.createView();
-        
     }
 
     createView() {
         this.router.navigate('garage');
     }
-    createContainer() {
-
-    }
+    createContainer() {}
 
     initPages() {
         const pages: PageInfo[] = [
@@ -47,9 +44,7 @@ export default class App {
             },
             {
                 pagePath: 'winners',
-                callback: () => {
-                    
-                },
+                callback: () => {},
             },
         ];
         return pages;

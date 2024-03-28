@@ -32,13 +32,13 @@
     border-radius: 10px;
     padding: 10px;
     font-size: 22px;
-    background-color:darkcyan; 
+    background-color: darkcyan;
 }
 
 .create-car-button:hover,
 .update-car-button:hover,
 .generate-button:hover {
-    background-color:cyan; 
+    background-color: cyan;
 }
 
 .action-with-cars-container {
@@ -52,12 +52,12 @@
     border-radius: 10px;
     padding: 10px;
     font-size: 22px;
-    background-color:cadetblue;
+    background-color: cadetblue;
 }
 
 .race-button:hover,
 .reset-button:hover {
-    background-color:aquamarine;
+    background-color: aquamarine;
 }
 
 .item-container {
@@ -91,18 +91,18 @@
 .button-prev,
 .button-next {
     padding: 5px;
-    background-color:darkcyan; 
+    background-color: darkcyan;
     border-radius: 10px;
 }
 
 .button-prev:disabled:hover,
 .button-next:disabled:hover {
-    background-color:darkcyan; 
+    background-color: darkcyan;
 }
 
 .button-prev:hover,
 .button-next:hover {
-    background-color:cyan; 
+    background-color: cyan;
 }
 
 .cars-list {
@@ -123,7 +123,7 @@
 
 .name-car {
     color: white;
-    font-size: 18px;;
+    font-size: 18px;
 }
 
 .car-img {
@@ -144,7 +144,7 @@
 
 .select-button:hover,
 .remove-button:hover {
-    background-color:blueviolet;
+    background-color: blueviolet;
 }
 
 .car-control {
@@ -163,12 +163,12 @@
     height: 30px;
     border-radius: 10px;
     color: white;
-    background-color:darkcyan;
+    background-color: darkcyan;
 }
 
 .start-button:hover,
 .stop-button:hover {
-    background-color:cyan;
+    background-color: cyan;
 }
 
 .disabled-area {

@@ -2,7 +2,7 @@ import { getCars } from '../../Api/Api';
 import Router from '../../Router/Router';
 import Component from '../../utils/base-component';
 import View from '../view';
-import './header.css'
+import './header.css';
 
 enum BUTTONNAME {
     GARAGE = 'Garage',
