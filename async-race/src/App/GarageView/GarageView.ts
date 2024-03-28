@@ -1,8 +1,9 @@
-import { ITEM_ON_PAGE, getCars } from "../Api/Api";
+import { ITEM_ON_PAGE, createCar, getCars } from "../Api/Api";
 import View from "../View/view";
 import Component from "../utils/base-component";
 import './garage.css';
 import sprite from '../../svg/sprite.svg';
+import { isNull } from "../utils/base-methods";
 
 enum ActionWithCars {
     create = 'create',
@@ -20,7 +21,7 @@ enum changeCar {
 export interface carInfo {
     name: string;
     color: string;
-    id: number;
+    id?: number | null;
 }
 
 export default class GarageView extends View {
@@ -45,15 +46,30 @@ export default class GarageView extends View {
         const createUpdateContainer: HTMLDivElement = new Component('div', '', '', [
             'create-update-container',
         ]).getContainer<HTMLDivElement>();
-        const createContainer: HTMLDivElement = GarageView.actionCar(ActionWithCars.create);
-        const updateContainer: HTMLDivElement = GarageView.actionCar(ActionWithCars.update);
+        const createContainer: HTMLDivElement = this.actionCar(ActionWithCars.create);
+        const updateContainer: HTMLDivElement = this.actionCar(ActionWithCars.update);
         createUpdateContainer.append(createContainer, updateContainer);
         const actionWithCarsContainer: HTMLDivElement = GarageView.actionWithCars();
         carsControlContainer.append(createUpdateContainer, actionWithCarsContainer);
         this.container?.append(carsControlContainer);
     }
 
-    static actionCar(action: string) {
+    createNewCar(name: HTMLInputElement, color: HTMLInputElement) {
+        const carName: string | null = name.value;
+        const colorName: string = color.value;
+        if(carName !== '') {
+            isNull(carName);
+            const newCar: carInfo = {
+                name: carName, color: colorName
+            };
+            createCar(newCar);
+            this.carsContent?.replaceChildren();
+            this.createCarList();
+            name.value = '';
+        }
+    }
+
+    actionCar(action: string) {
         const carContainer: HTMLDivElement = new Component('div', '', '', [
             `${action}-car-container`,
         ]).getContainer<HTMLDivElement>();
@@ -61,12 +77,15 @@ export default class GarageView extends View {
             `${action}-car-name`,
         ]).getContainer<HTMLInputElement>();
         const carColorInput: HTMLInputElement = new Component('input', '', '', [
-            `${action}create-car-color`,
+            `${action}-car-color`,
         ]).getContainer<HTMLInputElement>();
         carColorInput.type = 'color';
         const carButton: HTMLButtonElement = new Component('button', '', `${action.toUpperCase()}`, [
             `${action}-car-button`,
         ]).getContainer<HTMLButtonElement>();
+        if (action === ActionWithCars.create) {
+            carButton.addEventListener('click', () => this.createNewCar(carNameInput, carColorInput));
+        }
         carContainer.append(carNameInput, carColorInput, carButton);
         return carContainer;
     }

@@ -23,3 +23,17 @@ export const getCars = async(page: number) => {
         return Promise.reject(new Error(`Method getCars not work. Status error: ${responce.status}`));
     }
 }
+
+const POSTOptions = (car: carInfo) => {
+    return {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(car),
+    }
+}
+
+export const createCar = async(car: carInfo) => {
+    return await fetch(`${baseURL}${path.GARAGE}`, POSTOptions(car));
+}
