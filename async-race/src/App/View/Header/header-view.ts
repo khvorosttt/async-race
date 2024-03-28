@@ -1,4 +1,4 @@
-import { getCars } from '../../../Api/Api';
+import { getCars } from '../../Api/Api';
 import Router from '../../Router/Router';
 import Component from '../../utils/base-component';
 import View from '../view';

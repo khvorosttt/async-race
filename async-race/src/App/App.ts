@@ -4,7 +4,7 @@ import Component from './utils/base-component';
 import { isNull } from './utils/base-methods';
 import './app.css';
 import './normalize.css'
-import GarageView from '../Api/GarageView/GarageView';
+import GarageView from './GarageView/GarageView';
 import View from './View/view';
 
 export default class App {
