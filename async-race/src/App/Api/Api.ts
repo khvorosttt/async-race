@@ -24,6 +24,15 @@ export const getCars = async(page: number) => {
     }
 }
 
+export const getCar = async(id: number) => {
+    const responce: Response = await fetch(`${baseURL}${path.GARAGE}/${id}`);
+    if (responce.ok) {
+        return await responce.json();
+    } else {
+        return Promise.reject(new Error(`Method getCar not work. Status error: ${responce.status}`))
+    }
+}
+
 const POSTOptions = (car: carInfo) => {
     return {
         method: 'POST',
@@ -36,4 +45,23 @@ const POSTOptions = (car: carInfo) => {
 
 export const createCar = async(car: carInfo) => {
     return await fetch(`${baseURL}${path.GARAGE}`, POSTOptions(car));
+}
+
+const PUTOptions = (car: carInfo) => {
+    return {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(car),
+    }
+}
+
+export const updateCar = async(car: carInfo) => {
+    const responce: Response = await fetch(`${baseURL}${path.GARAGE}/${car.id}`, PUTOptions(car));
+    if(responce.ok) {
+        return responce.json();
+    } else {
+        return Promise.reject(new Error(`Car is not update. Status error: ${responce.status}`));
+    }
 }

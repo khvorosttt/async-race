@@ -170,3 +170,8 @@
 .stop-button:hover {
     background-color:cyan;
 }
+
+.disabled-area {
+    pointer-events: none;
+    opacity: 0.6;
+}

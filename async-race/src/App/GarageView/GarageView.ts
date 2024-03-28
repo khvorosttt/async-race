@@ -1,4 +1,4 @@
-import { ITEM_ON_PAGE, createCar, getCars } from "../Api/Api";
+import { ITEM_ON_PAGE, createCar, getCar, getCars, updateCar } from "../Api/Api";
 import View from "../View/view";
 import Component from "../utils/base-component";
 import './garage.css';
@@ -25,11 +25,13 @@ export interface carInfo {
 }
 
 export default class GarageView extends View {
-    static countAll: number = 100;
+    static countAll: number = 0;
 
     static currentPage: number = 1;
 
     private carsContent: HTMLDivElement | null;
+
+    private selectedCar: number | null = null;
 
     constructor() {
         super(['garage-container']);
@@ -48,6 +50,7 @@ export default class GarageView extends View {
         ]).getContainer<HTMLDivElement>();
         const createContainer: HTMLDivElement = this.actionCar(ActionWithCars.create);
         const updateContainer: HTMLDivElement = this.actionCar(ActionWithCars.update);
+        updateContainer.classList.add('disabled-area');
         createUpdateContainer.append(createContainer, updateContainer);
         const actionWithCarsContainer: HTMLDivElement = GarageView.actionWithCars();
         carsControlContainer.append(createUpdateContainer, actionWithCarsContainer);
@@ -69,6 +72,28 @@ export default class GarageView extends View {
         }
     }
 
+    updateCar(name: HTMLInputElement, color: HTMLInputElement) {
+        const carName: string | null = name.value;
+        const colorName: string = color.value;
+        if(carName !== '') {
+            isNull(carName);
+            const car: carInfo = {
+                name: carName, color: colorName, id: this.selectedCar
+            };
+            updateCar(car);
+            this.carsContent?.replaceChildren();
+            this.createCarList();
+            name.value = '';
+        }
+        this.selectedCar = null;
+        isNull(this.container);
+        const updateContainer: HTMLDivElement | null = this.container.querySelector<HTMLDivElement>('.update-car-container');
+        isNull(updateContainer);
+        updateContainer.classList.add('disabled-area');
+        name.value = '';
+        color.value = '#000000';
+    }
+
     actionCar(action: string) {
         const carContainer: HTMLDivElement = new Component('div', '', '', [
             `${action}-car-container`,
@@ -85,6 +110,8 @@ export default class GarageView extends View {
         ]).getContainer<HTMLButtonElement>();
         if (action === ActionWithCars.create) {
             carButton.addEventListener('click', () => this.createNewCar(carNameInput, carColorInput));
+        } else if (action = ActionWithCars.update) {
+            carButton.addEventListener('click', () => this.updateCar(carNameInput, carColorInput));
         }
         carContainer.append(carNameInput, carColorInput, carButton);
         return carContainer;
@@ -107,19 +134,24 @@ export default class GarageView extends View {
         return container;
     }
 
-    static createCarItem(item: carInfo) {
+    createCarItem(item: carInfo) {
         const itemContainer: HTMLDivElement = new Component('div', '', '', [
             'item-container',
         ]).getContainer<HTMLDivElement>();
+        isNull(item.id);
+        itemContainer.id = item.id.toString();
         const selectRemoveContainer: HTMLDivElement = new Component('div', '', '', [
             'select-remove-container',
         ]).getContainer<HTMLDivElement>();
         const selectButton : HTMLButtonElement = new Component('button', '', `${changeCar.select.toUpperCase()}`, [
             'select-button',
         ]).getContainer<HTMLButtonElement>();
+        selectButton.setAttribute('data-carId', item.id.toString());
+        selectButton.addEventListener('click', (event: Event) => this.selectCar(event));
         const removeButton : HTMLButtonElement = new Component('button', '', `${changeCar.remove.toUpperCase()}`, [
             'remove-button',
         ]).getContainer<HTMLButtonElement>();
+        removeButton.setAttribute('data-carId', item.id.toString());
         const nameCar: HTMLDivElement = new Component('div', '', `${item.name}`, [
             'name-car',
         ]).getContainer<HTMLDivElement>();
@@ -135,13 +167,33 @@ export default class GarageView extends View {
         const startButton: HTMLButtonElement = new Component('button', '', `A`, [
             'start-button',
         ]).getContainer<HTMLButtonElement>();
+        startButton.setAttribute('data-carId', item.id.toString());
         const stopButton: HTMLButtonElement = new Component('button', '', `B`, [
             'stop-button',
         ]).getContainer<HTMLButtonElement>();
+        stopButton.setAttribute('data-carId', item.id.toString());
         startStopContainer.append(startButton, stopButton);
         carControl.append(startStopContainer, carImg);
         itemContainer.append(selectRemoveContainer, carControl);
         return itemContainer;
+    }
+
+    selectCar(event: Event) {
+        const currentElem: HTMLDivElement = <HTMLDivElement>event.currentTarget;
+        this.selectedCar = Number(currentElem.getAttribute('data-carId'));
+        isNull(this.container);
+        const updateContainer: HTMLDivElement | null = this.container.querySelector<HTMLDivElement>('.update-car-container');
+        isNull(updateContainer);
+        updateContainer.classList.remove('disabled-area');
+        const colorContainer: HTMLInputElement | null = updateContainer.querySelector<HTMLInputElement>('.update-car-color');
+        const nameContainer: HTMLInputElement | null = updateContainer.querySelector<HTMLInputElement>('.update-car-name');
+        isNull(colorContainer);
+        isNull(nameContainer);
+        const carFromServer: Promise<carInfo> = getCar(this.selectedCar);
+        carFromServer.then(car => {
+            colorContainer.value = car.color;
+            nameContainer.value = car.name;
+        })
     }
 
     async createCarList() {
@@ -149,7 +201,7 @@ export default class GarageView extends View {
             'cars-list',
         ]).getContainer<HTMLDivElement>();
         const carsData = getCars(GarageView.currentPage);
-        (await (await carsData).data).forEach((car) => carsList.append(GarageView.createCarItem(car)));
+        (await (await carsData).data).forEach((car) => carsList.append(this.createCarItem(car)));
         GarageView.countAll = (await carsData).count;
         const pageTitle: HTMLHeadingElement = new Component('h1', '', `Garage (${GarageView.countAll})`, [
             'page-title',
@@ -201,22 +253,18 @@ export default class GarageView extends View {
     }
 
     nextPage() {
-        console.log('yyyyyyyyyyyyyyyy');
         if((GarageView.currentPage) * ITEM_ON_PAGE < GarageView.countAll) {
             GarageView.currentPage += 1;
             this.carsContent?.replaceChildren();
             this.createCarList();
-            console.log('hvnhgfcdxfgh');
         }
     }
 
     prevPage() {
-        console.log('yyyyyyyyyyyyyyyy');
         if(GarageView.currentPage > 1) {
             GarageView.currentPage -= 1;
             this.carsContent?.replaceChildren();
             this.createCarList();
-            console.log('hvnhgfcdxfgh');
         }
     }
 
