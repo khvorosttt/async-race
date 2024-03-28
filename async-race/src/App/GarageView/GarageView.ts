@@ -1,4 +1,4 @@
-import { getCars } from "../Api/Api";
+import { ITEM_ON_PAGE, getCars } from "../Api/Api";
 import View from "../View/view";
 import Component from "../utils/base-component";
 import './garage.css';
@@ -24,9 +24,17 @@ export interface carInfo {
 }
 
 export default class GarageView extends View {
+    static countAll: number = 100;
+
+    static currentPage: number = 1;
+
+    private carsContent: HTMLDivElement | null;
+
     constructor() {
         super(['garage-container']);
+        this.carsContent = new Component('div', '', '' , ['cars-content']).getContainer<HTMLDivElement>();
         this.createCarsControl();
+        this.container?.append(this.carsContent);
         this.createCarList();
     }
 
@@ -117,30 +125,26 @@ export default class GarageView extends View {
         return itemContainer;
     }
 
-    createCarList() {
+    async createCarList() {
         const carsList: HTMLDivElement = new Component('div', '', '', [
             'cars-list',
         ]).getContainer<HTMLDivElement>();
-        const carsInfoList: Promise<carInfo[]> = getCars();
-        carsInfoList.then(cars => {
-            cars.forEach((car) => carsList.append(GarageView.createCarItem(car)));
-        })
-        const pageTitle: HTMLHeadingElement = new Component('h1', '', 'Garage', [
+        const carsData = getCars(GarageView.currentPage);
+        (await (await carsData).data).forEach((car) => carsList.append(GarageView.createCarItem(car)));
+        GarageView.countAll = (await carsData).count;
+        const pageTitle: HTMLHeadingElement = new Component('h1', '', `Garage (${GarageView.countAll})`, [
             'page-title',
         ]).getContainer<HTMLDivElement>();
-        const pageControl: HTMLDivElement = GarageView.createPageControl();
+        const pageControl: HTMLDivElement = this.createPageControl();
         
-        this.container?.append(pageTitle, pageControl, carsList);
-        // carsInfoList.forEach((item: carInfo) => {
-        //     carsList.append(GarageView.createCarItem(item));
-        // })
+        this.carsContent?.append(pageTitle, pageControl, carsList);
     }
 
-    static createPageControl() {
+    createPageControl() {
         const pageControl: HTMLDivElement = new Component('div', '', '', [
             'page-control-container',
         ]).getContainer<HTMLDivElement>();
-        const numberPage: HTMLDivElement = new Component('div', '', 'Page', [
+        const numberPage: HTMLDivElement = new Component('div', '', `Page #${GarageView.currentPage}`, [
             'number-page',
         ]).getContainer<HTMLDivElement>();
         const pageButtonContainer: HTMLDivElement = new Component('div', '', '', [
@@ -149,11 +153,52 @@ export default class GarageView extends View {
         const buttonPrev: HTMLButtonElement = new Component('button', '', 'Prev', [
             'button-prev',
         ]).getContainer<HTMLButtonElement>();
+        this.prevDisabled(buttonPrev);
+        buttonPrev.addEventListener('click', () => this.prevPage());
         const buttonNext: HTMLButtonElement = new Component('button', '', 'Next', [
             'button-next',
         ]).getContainer<HTMLButtonElement>();
+        this.nextDisabled(buttonNext);
+        buttonNext.addEventListener('click', () => this.nextPage());
         pageButtonContainer.append(buttonPrev, buttonNext);
         pageControl.append(numberPage, pageButtonContainer);
         return pageControl;
     }
+
+    nextDisabled(button: HTMLButtonElement) {
+        if((GarageView.currentPage) * ITEM_ON_PAGE < GarageView.countAll) {
+            button.disabled = false;
+        } else {
+            button.disabled = true;
+        }
+    }
+
+    prevDisabled(button: HTMLButtonElement) {
+        if(GarageView.currentPage > 1) {
+            button.disabled = false;
+        } else {
+            button.disabled = true;
+        }
+    }
+
+    nextPage() {
+        console.log('yyyyyyyyyyyyyyyy');
+        if((GarageView.currentPage) * ITEM_ON_PAGE < GarageView.countAll) {
+            GarageView.currentPage += 1;
+            this.carsContent?.replaceChildren();
+            this.createCarList();
+            console.log('hvnhgfcdxfgh');
+        }
+    }
+
+    prevPage() {
+        console.log('yyyyyyyyyyyyyyyy');
+        if(GarageView.currentPage > 1) {
+            GarageView.currentPage -= 1;
+            this.carsContent?.replaceChildren();
+            this.createCarList();
+            console.log('hvnhgfcdxfgh');
+        }
+    }
+
 }

@@ -95,6 +95,11 @@
     border-radius: 10px;
 }
 
+.button-prev:disabled:hover,
+.button-next:disabled:hover {
+    background-color:darkcyan; 
+}
+
 .button-prev:hover,
 .button-next:hover {
     background-color:cyan; 
