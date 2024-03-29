@@ -10,25 +10,25 @@ enum path {
 export const ITEM_ON_PAGE: number = 7;
 
 export const getCars = async (page: number) => {
-    const responce: Response = await fetch(`${baseURL}${path.GARAGE}?_page=${page}&_limit=${ITEM_ON_PAGE}`);
-    if (responce.ok) {
-        const data: Promise<carInfo[]> = await responce.json();
-        const totalCount: number = Number(responce.headers.get('X-Total-Count'));
+    const response: Response = await fetch(`${baseURL}${path.GARAGE}?_page=${page}&_limit=${ITEM_ON_PAGE}`);
+    if (response.ok) {
+        const data: Promise<carInfo[]> = await response.json();
+        const totalCount: number = Number(response.headers.get('X-Total-Count'));
         return {
             data: data,
             count: totalCount,
         };
     } else {
-        return Promise.reject(new Error(`Method getCars not work. Status error: ${responce.status}`));
+        return Promise.reject(new Error(`Method getCars not work. Status error: ${response.status}`));
     }
 };
 
 export const getCar = async (id: number) => {
-    const responce: Response = await fetch(`${baseURL}${path.GARAGE}/${id}`);
-    if (responce.ok) {
-        return await responce.json();
+    const response: Response = await fetch(`${baseURL}${path.GARAGE}/${id}`);
+    if (response.ok) {
+        return await response.json();
     } else {
-        return Promise.reject(new Error(`Method getCar not work. Status error: ${responce.status}`));
+        return Promise.reject(new Error(`Method getCar not work. Status error: ${response.status}`));
     }
 };
 
@@ -57,10 +57,27 @@ const PUTOptions = (car: carInfo) => {
 };
 
 export const updateCar = async (car: carInfo) => {
-    const responce: Response = await fetch(`${baseURL}${path.GARAGE}/${car.id}`, PUTOptions(car));
-    if (responce.ok) {
-        return responce.json();
+    const response: Response = await fetch(`${baseURL}${path.GARAGE}/${car.id}`, PUTOptions(car));
+    if (response.ok) {
+        return response.json();
     } else {
-        return Promise.reject(new Error(`Car is not update. Status error: ${responce.status}`));
+        return Promise.reject(new Error(`Car is not update. Status error: ${response.status}`));
     }
 };
+
+export const deleteCarFromGarage = async (id: number) => {
+    const response: Response = await fetch(`${baseURL}${path.GARAGE}/${id}`, { method: 'DELETE' });
+    if (response.ok) {
+        return response.json();
+    } else {
+        return Promise.reject(new Error(`Removing the car failed. Perhaps there is no car with this id in the garage.
+            Status error: ${response.status}`));
+    }
+}
+
+export const deleteCarFromWinners = async (id: number) => {
+    const response: Response = await fetch(`${baseURL}${path.WINNERS}/${id}`, { method: 'DELETE' });
+    if (response.ok) {
+        return response.json();
+    }
+}

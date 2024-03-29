@@ -1,4 +1,4 @@
-import { ITEM_ON_PAGE, createCar, getCar, getCars, updateCar } from '../Api/Api';
+import { ITEM_ON_PAGE, createCar, deleteCarFromGarage, deleteCarFromWinners, getCar, getCars, updateCar } from '../Api/Api';
 import View from '../View/view';
 import Component from '../utils/base-component';
 import './garage.css';
@@ -98,6 +98,11 @@ export default class GarageView extends View {
         updateContainer.classList.add('disabled-area');
         name.value = '';
         color.value = '#000000';
+        const previosRemoveSelect: HTMLButtonElement | null = this.container.querySelector('.not-remove');
+        if (previosRemoveSelect !== null) {
+            previosRemoveSelect.disabled = false;
+            previosRemoveSelect.classList.remove('not-remove');
+        }
     }
 
     actionCar(action: string) {
@@ -157,11 +162,12 @@ export default class GarageView extends View {
             'select-button',
         ]).getContainer<HTMLButtonElement>();
         selectButton.setAttribute('data-carId', item.id.toString());
-        selectButton.addEventListener('click', (event: Event) => this.selectCar(event));
         const removeButton: HTMLButtonElement = new Component('button', '', `${changeCar.remove.toUpperCase()}`, [
             'remove-button',
         ]).getContainer<HTMLButtonElement>();
         removeButton.setAttribute('data-carId', item.id.toString());
+        selectButton.addEventListener('click', (event: Event) => this.selectCar(event, removeButton));
+        removeButton.addEventListener('click', (event: Event) => this.removeCar(event), { once: true });
         const nameCar: HTMLDivElement = new Component('div', '', `${item.name}`, [
             'name-car',
         ]).getContainer<HTMLDivElement>();
@@ -186,10 +192,17 @@ export default class GarageView extends View {
         return itemContainer;
     }
 
-    selectCar(event: Event) {
+    selectCar(event: Event, removeButton: HTMLButtonElement) {
         const currentElem: HTMLDivElement = <HTMLDivElement>event.currentTarget;
         this.selectedCar = Number(currentElem.getAttribute('data-carId'));
         isNull(this.container);
+        const previosRemoveSelect: HTMLButtonElement | null = this.container.querySelector('.not-remove');
+        if (previosRemoveSelect !== null) {
+            previosRemoveSelect.disabled = false;
+            previosRemoveSelect.classList.remove('not-remove');
+        }
+        removeButton.classList.add('not-remove');
+        removeButton.disabled = true;
         const updateContainer: HTMLDivElement | null =
             this.container.querySelector<HTMLDivElement>('.update-car-container');
         isNull(updateContainer);
@@ -205,6 +218,15 @@ export default class GarageView extends View {
             colorContainer.value = car.color;
             nameContainer.value = car.name;
         });
+    }
+
+    async removeCar(event: Event) {
+        const currentElem: HTMLDivElement = <HTMLDivElement>event.currentTarget;
+        this.selectedCar = Number(currentElem.getAttribute('data-carId'));
+        await deleteCarFromGarage(this.selectedCar);
+        await deleteCarFromWinners(this.selectedCar);
+        this.carsContent?.replaceChildren();
+        this.createCarList();
     }
 
     async createCarList() {

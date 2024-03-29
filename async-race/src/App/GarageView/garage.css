@@ -147,6 +147,18 @@
     background-color: blueviolet;
 }
 
+.select-button:disabled,
+.remove-button:disabled {
+    background-color: #7f46e2;
+    cursor: default;
+    opacity: 0.8;
+}
+
+.select-button:disabled:hover,
+.remove-button:disabled:hover {
+    background-color: #7f46e2;
+}
+
 .car-control {
     display: flex;
     align-items: center;
