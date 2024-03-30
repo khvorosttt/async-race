@@ -83,7 +83,7 @@ export const deleteCarFromWinners = async (id: number) => {
     }
 }
 
-export const startEngine = async(id: number, status: 'started' | 'stopped') => {
+export const startStopEngine = async(id: number, status: 'started' | 'stopped') => {
     const response: Response = await fetch(`${baseURL}${path.ENGINE}?id=${id}&status=${status}`, { method: 'PATCH' });
     if (response.ok) {
         return await response.json();
