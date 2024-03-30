@@ -127,10 +127,12 @@
 }
 
 .car-img {
-    width: 80px;
-    height: 70px;
+    width: 75px;
+    height: 60px;
     background-color: white;
     mask-image: url(../../svg/car2.svg);
+    position: absolute;
+    margin-left: 68px;
 }
 
 .select-button,
@@ -159,22 +161,25 @@
     background-color: #7f46e2;
 }
 
-.car-control {
-    display: flex;
-    align-items: center;
-}
-
-.start-stop-container {
-    display: flex;
-    gap: 5px;
-}
-
 .start-button,
 .stop-button {
     width: 30px;
     height: 30px;
     border-radius: 10px;
     color: white;
+    background-color: darkcyan;
+    cursor: pointer;
+}
+
+.start-button:disabled,
+.stop-button:disabled {
+    opacity: 0.8;
+    background-color: darkcyan;
+    cursor: default;
+}
+
+.start-button:disabled:hover,
+.stop-button:disabled:hover {
     background-color: darkcyan;
 }
 
@@ -186,4 +191,28 @@
 .disabled-area {
     pointer-events: none;
     opacity: 0.6;
+}
+
+.car-control {
+    display: flex;
+    align-items: center;
+    position: relative;
+    height: 80px;
+}
+
+.start-stop-container {
+    display: flex;
+    gap: 5px;
+    /* width: 200px;
+    height: 300px; */
+    position: relative;
+}
+
+.win-flag {
+    width: 80px;
+    height: 70px;
+    background-color: red;
+    mask-image: url(../../svg/flag.svg);
+    position: absolute;
+    right: 80px;
 }

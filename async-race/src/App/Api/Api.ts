@@ -5,6 +5,7 @@ const baseURL = 'http://127.0.0.1:3000';
 enum path {
     GARAGE = '/garage',
     WINNERS = '/winners',
+    ENGINE = '/engine'
 }
 
 export const ITEM_ON_PAGE: number = 7;
@@ -80,4 +81,23 @@ export const deleteCarFromWinners = async (id: number) => {
     if (response.ok) {
         return response.json();
     }
+}
+
+export const startEngine = async(id: number, status: 'started' | 'stopped') => {
+    const response: Response = await fetch(`${baseURL}${path.ENGINE}?id=${id}&status=${status}`, { method: 'PATCH' });
+    if (response.ok) {
+        return await response.json();
+    } else {
+        return Promise.reject(new Error(`Method startEngine not work. Status error: ${response.status}`));
+    }
+}
+
+export const switchEngineToDrive = async(id: number, status: 'drive') => {
+    const response: Response = await fetch(`${baseURL}${path.ENGINE}?id=${id}&status=${status}`, { method: 'PATCH' });
+    if (response.ok) {
+        return false;
+    } else if (response.status === 500){
+        return true;
+    }
+    return false;
 }

@@ -1,4 +1,4 @@
-import { ITEM_ON_PAGE, createCar, deleteCarFromGarage, deleteCarFromWinners, getCar, getCars, updateCar } from '../Api/Api';
+import { ITEM_ON_PAGE, createCar, deleteCarFromGarage, deleteCarFromWinners, getCar, getCars, startEngine, switchEngineToDrive, updateCar } from '../Api/Api';
 import View from '../View/view';
 import Component from '../utils/base-component';
 import './garage.css';
@@ -22,6 +22,11 @@ export interface carInfo {
     name: string;
     color: string;
     id?: number | null;
+}
+
+export interface engineInfo {
+    velocity: number;
+    distance: number;
 }
 
 const AMOUNT_GENERATES_CARS: number = 100;
@@ -166,6 +171,9 @@ export default class GarageView extends View {
             'remove-button',
         ]).getContainer<HTMLButtonElement>();
         removeButton.setAttribute('data-carId', item.id.toString());
+        if (this.selectedCar === item.id) {
+            removeButton.disabled = true;
+        }
         selectButton.addEventListener('click', (event: Event) => this.selectCar(event, removeButton));
         removeButton.addEventListener('click', (event: Event) => this.removeCar(event), { once: true });
         const nameCar: HTMLDivElement = new Component('div', '', `${item.name}`, [
@@ -181,13 +189,18 @@ export default class GarageView extends View {
         const startButton: HTMLButtonElement = new Component('button', '', `A`, [
             'start-button',
         ]).getContainer<HTMLButtonElement>();
+        startButton.addEventListener('click', (event: Event) => this.startDrive(event, carControl));
         startButton.setAttribute('data-carId', item.id.toString());
         const stopButton: HTMLButtonElement = new Component('button', '', `B`, [
             'stop-button',
         ]).getContainer<HTMLButtonElement>();
+        stopButton.disabled = true;
         stopButton.setAttribute('data-carId', item.id.toString());
         startStopContainer.append(startButton, stopButton);
-        carControl.append(startStopContainer, carImg);
+        const flag: HTMLDivElement = new Component('div', '', '', [
+            'win-flag',
+        ]).getContainer<HTMLDivElement>();
+        carControl.append(startStopContainer, carImg, flag);
         itemContainer.append(selectRemoveContainer, carControl);
         return itemContainer;
     }
@@ -309,5 +322,31 @@ export default class GarageView extends View {
         }
         this.carsContent?.replaceChildren();
         this.createCarList();
+    }
+
+    async startDrive(event: Event, carControl: HTMLDivElement) {
+        const currentElem: HTMLButtonElement = <HTMLButtonElement>event.currentTarget;
+        const id: number = Number(currentElem.getAttribute('data-carId'));
+        let requestAnimateId: number;        
+        const engineInfo: engineInfo = await startEngine(id, 'started');
+        const car: HTMLDivElement | null = carControl.querySelector<HTMLDivElement>('.car-img');
+        isNull(car);
+        const flag: HTMLDivElement | null = carControl.querySelector<HTMLDivElement>('.win-flag');
+        isNull(flag);
+        const time: number = engineInfo.distance / engineInfo.velocity;
+        console.log(time);
+        console.log(engineInfo);
+        requestAnimateId = requestAnimationFrame(function draw() {
+            const carPositionString: string = car.style.left;
+            const carPosition: number = Number(carPositionString.slice(0, carPositionString.length - 2));
+            const distance: number = Number(carPosition) + engineInfo.velocity * 0.05;
+            car.style.left = distance + 'px';
+            if (carPosition < flag.offsetLeft) {
+                requestAnimateId = requestAnimationFrame(draw);
+            }
+        });
+        const driveStatus: boolean = await switchEngineToDrive(id, 'drive');
+        if (driveStatus) cancelAnimationFrame(requestAnimateId);
+
     }
 }
