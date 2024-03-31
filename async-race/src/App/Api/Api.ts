@@ -1,12 +1,12 @@
 import { carInfo } from '../GarageView/GarageView';
-import { winnerInfo } from '../WinnersView/WinnersView'
+import { winnerInfo } from '../WinnersView/WinnersView';
 
 const baseURL = 'http://127.0.0.1:3000';
 
 enum path {
     GARAGE = '/garage',
     WINNERS = '/winners',
-    ENGINE = '/engine'
+    ENGINE = '/engine',
 }
 
 export const ITEM_ON_PAGE_GARAGE: number = 7;
@@ -74,43 +74,47 @@ export const deleteCarFromGarage = async (id: number) => {
     if (response.ok) {
         return response.json();
     } else {
-        return Promise.reject(new Error(`Removing the car failed. Perhaps there is no car with this id in the garage.
-            Status error: ${response.status}`));
+        return Promise.reject(
+            new Error(`Removing the car failed. Perhaps there is no car with this id in the garage.
+            Status error: ${response.status}`)
+        );
     }
-}
+};
 
 export const deleteCarFromWinners = async (id: number) => {
     const response: Response = await fetch(`${baseURL}${path.WINNERS}/${id}`, { method: 'DELETE' });
     if (response.ok) {
         return response.json();
     }
-}
+};
 
-export const startStopEngine = async(id: number, status: 'started' | 'stopped') => {
+export const startStopEngine = async (id: number, status: 'started' | 'stopped') => {
     const response: Response = await fetch(`${baseURL}${path.ENGINE}?id=${id}&status=${status}`, { method: 'PATCH' });
     if (response.ok) {
         return await response.json();
     } else {
         return Promise.reject(new Error(`Method startEngine not work. Status error: ${response.status}`));
     }
-}
+};
 
-export const switchEngineToDrive = async(id: number, status: 'drive', signal: AbortSignal) => {
+export const switchEngineToDrive = async (id: number, status: 'drive', signal: AbortSignal) => {
     try {
-        const response: Response = await fetch(`${baseURL}${path.ENGINE}?id=${id}&status=${status}`, { method: 'PATCH', signal: signal });
+        const response: Response = await fetch(`${baseURL}${path.ENGINE}?id=${id}&status=${status}`, {
+            method: 'PATCH',
+            signal: signal,
+        });
         if (response.ok) {
             return Promise.resolve(JSON.stringify(await getCar(id)));
-        } else if (response.status === 500){
+        } else if (response.status === 500) {
             return Promise.reject(response.status);
         }
         return Promise.reject(true);
-    } catch(error) {
+    } catch (error) {
         return Promise.reject(true);
     }
-    
-}
+};
 
-export const getWinners = async(page: number) => {
+export const getWinners = async (page: number) => {
     const response: Response = await fetch(`${baseURL}${path.WINNERS}?_page=${page}&_limit=${ITEM_ON_PAGE_WINNERS}`);
     if (response.ok) {
         const data: Promise<carInfo[]> = await response.json();
@@ -118,16 +122,16 @@ export const getWinners = async(page: number) => {
     } else {
         return Promise.reject(new Error(`Method getWinners not work. Status error: ${response.status}`));
     }
-}
+};
 
-export const getWinner = async(id: number) => {
+export const getWinner = async (id: number) => {
     const response: Response = await fetch(`${baseURL}${path.WINNERS}/${id}`);
     if (response.ok) {
         return await response.json();
     } else if (response.status === 404) {
         return {};
     }
-}
+};
 
 const POSTWinnerOptions = (winner: winnerInfo) => {
     return {
@@ -140,7 +144,7 @@ const POSTWinnerOptions = (winner: winnerInfo) => {
 };
 
 export const createWinner = async (winner: winnerInfo) => {
-    return await fetch(`${baseURL}${path.GARAGE}`, POSTWinnerOptions(winner));
+    return await fetch(`${baseURL}${path.WINNERS}`, POSTWinnerOptions(winner));
 };
 
 const PUTWinnerOptions = (winner: winnerInfo) => {
@@ -154,7 +158,7 @@ const PUTWinnerOptions = (winner: winnerInfo) => {
 };
 
 export const updateWinner = async (winner: winnerInfo) => {
-    const response: Response = await fetch(`${baseURL}${path.GARAGE}/${winner.id}`, PUTWinnerOptions(winner));
+    const response: Response = await fetch(`${baseURL}${path.WINNERS}/${winner.id}`, PUTWinnerOptions(winner));
     if (response.ok) {
         return response.json();
     } else {

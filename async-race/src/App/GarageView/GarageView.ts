@@ -1,9 +1,23 @@
-import { ITEM_ON_PAGE_GARAGE, createCar, deleteCarFromGarage, deleteCarFromWinners, getCar, getCars, startStopEngine, switchEngineToDrive, updateCar } from '../Api/Api';
+import {
+    ITEM_ON_PAGE_GARAGE,
+    createCar,
+    createWinner,
+    deleteCarFromGarage,
+    deleteCarFromWinners,
+    getCar,
+    getCars,
+    getWinner,
+    startStopEngine,
+    switchEngineToDrive,
+    updateCar,
+    updateWinner,
+} from '../Api/Api';
 import View from '../View/view';
 import Component from '../utils/base-component';
 import './garage.css';
 import { isNull } from '../utils/base-methods';
 import { arrayCarsName, randomColor, randomNumber } from './info';
+import { winnerInfo } from '../WinnersView/WinnersView';
 
 enum ActionWithCars {
     create = 'create',
@@ -43,7 +57,7 @@ export default class GarageView extends View {
     private stopRaceStatus: boolean = false;
 
     private raceController: AbortController;
-    
+
     private runningCars: number = 0;
 
     private winContainer: HTMLDivElement | null;
@@ -211,9 +225,7 @@ export default class GarageView extends View {
         stopButton.disabled = true;
         stopButton.setAttribute('data-carId', item.id.toString());
         startStopContainer.append(startButton, stopButton);
-        const flag: HTMLDivElement = new Component('div', '', '', [
-            'win-flag',
-        ]).getContainer<HTMLDivElement>();
+        const flag: HTMLDivElement = new Component('div', '', '', ['win-flag']).getContainer<HTMLDivElement>();
         carControl.append(startStopContainer, carImg, flag);
         itemContainer.append(selectRemoveContainer, carControl);
         return itemContainer;
@@ -258,6 +270,10 @@ export default class GarageView extends View {
 
     async createCarList() {
         this.runningCars = 0;
+        isNull(this.container);
+        const raceButton: HTMLButtonElement | null = this.container.querySelector<HTMLButtonElement>('.race-button');
+        isNull(raceButton);
+        raceButton.disabled = false;
         this.winContainer = new Component('div', '', '', ['win-container']).getContainer<HTMLDivElement>();
         this.carsContent?.append(this.winContainer);
         const carsList: HTMLDivElement = new Component('div', '', '', ['cars-list']).getContainer<HTMLDivElement>();
@@ -354,7 +370,7 @@ export default class GarageView extends View {
         isNull(stopButton);
         stopButton.disabled = false;
         const id: number = Number(startButton.getAttribute('data-carId'));
-        let requestAnimateId: number;        
+        let requestAnimateId: number;
         const engineInfo: engineInfo = await startStopEngine(id, 'started');
         const car: HTMLDivElement | null = carControl.querySelector<HTMLDivElement>('.car-img');
         isNull(car);
@@ -377,16 +393,19 @@ export default class GarageView extends View {
         });
 
         const driveStatus: Promise<string | boolean> = switchEngineToDrive(id, 'drive', signalStop.signal);
-        driveStatus.then((status) => {
-            if (status) cancelAnimationFrame(requestAnimateId);
-        }).catch((error) => console.log('Car is stopped: '+ error));
+        driveStatus
+            .then((status) => {
+                if (status) cancelAnimationFrame(requestAnimateId);
+            })
+            .catch((error) => console.log('Car is stopped: ' + error));
     }
 
     stopDrive(requestAnimateId: number, carControl: HTMLDivElement, signalStop: AbortController) {
         this.runningCars -= 1;
         if (this.runningCars === 0) {
             isNull(this.container);
-            const raceButton: HTMLButtonElement | null = this.container.querySelector<HTMLButtonElement>('.race-button');
+            const raceButton: HTMLButtonElement | null =
+                this.container.querySelector<HTMLButtonElement>('.race-button');
             isNull(raceButton);
             raceButton.disabled = false;
         }
@@ -399,14 +418,13 @@ export default class GarageView extends View {
         const car: HTMLDivElement | null = carControl.querySelector<HTMLDivElement>('.car-img');
         isNull(car);
         const id: number = Number(startButton.getAttribute('data-carId'));
-        startStopEngine(id, 'stopped')
-        .then(() => {
+        startStopEngine(id, 'stopped').then(() => {
             startButton.disabled = false;
             stopButton.disabled = true;
             car.style.left = '';
         });
     }
- 
+
     async startRace(event: Event, resetButton: HTMLButtonElement) {
         this.raceController = new AbortController();
         this.stopRaceStatus = false;
@@ -415,51 +433,96 @@ export default class GarageView extends View {
         currentButton.disabled = true;
         resetButton.disabled = false;
         isNull(this.carsContent);
-        const carsControls: HTMLDivElement[] =[...this.carsContent.querySelectorAll<HTMLDivElement>('.car-control')];
-        await carsControls.map((carControl) => {
-            this.runningCars += 1;
-            const id: number = Number(carControl.getAttribute('data-carId'));
-            const startButton: HTMLButtonElement | null = carControl.querySelector<HTMLButtonElement>('.start-button');
-            isNull(startButton);
-            startButton.disabled = true;
-            const engineInfo: Promise<engineInfo> = startStopEngine(id, 'started');
-            engineInfo.then((engine) => {
-                let requestAnimateId: number;        
-                const car: HTMLDivElement | null = carControl.querySelector<HTMLDivElement>('.car-img');
-                isNull(car);
-                car.classList.remove('broken');
-                const flag: HTMLDivElement | null = carControl.querySelector<HTMLDivElement>('.win-flag');
-                isNull(flag);
-                const time: number = engine.distance / engine.velocity;
-                const velocity: number = (flag.offsetLeft - car.offsetLeft) / (time / 30);
-                const draw = () => {
-                    const carPositionString: string = car.style.left;
-                    const carPosition: number = Number(carPositionString.slice(0, carPositionString.length - 2));
-                    const distance: number = Number(carPosition) + velocity;
-                    car.style.left = distance + 'px';
-                    if (carPosition < flag.offsetLeft && !this.stopRaceStatus  && !car.classList.contains('broken')) {
-                        requestAnimateId = requestAnimationFrame(draw);
-                    }
-                }
-                requestAnimateId = requestAnimationFrame(draw);              
-            });
-        });
-        const arrayCars: Promise<string| boolean>[] = [];
-        carsControls.map((carControl, index) => {
-            const id: number = Number(carControl.getAttribute('data-carId'));
-            const car: HTMLDivElement | null = carControl.querySelector<HTMLDivElement>('.car-img');
-            isNull(car);
-            arrayCars.push(switchEngineToDrive(id, 'drive', this.raceController.signal));
-            arrayCars[index].catch((status) => {
-                if (status === 500) car.classList.add('broken');
+        const carsControls: HTMLDivElement[] = [...this.carsContent.querySelectorAll<HTMLDivElement>('.car-control')];
+        Promise.allSettled(
+            carsControls.map((carControl) => {
+                this.runningCars += 1;
+                const id: number = Number(carControl.getAttribute('data-carId'));
+                const startButton: HTMLButtonElement | null =
+                    carControl.querySelector<HTMLButtonElement>('.start-button');
+                isNull(startButton);
+                startButton.disabled = true;
+                return Promise.resolve(startStopEngine(id, 'started'));
             })
-        });
-        Promise.any(arrayCars).then((win: string | boolean) => {
-            isNull(this.winContainer);
-            const winner: carInfo = JSON.parse(win.toString());
-            this.winContainer.textContent = winner.name;
-            this.winContainer.classList.add('show');
-        }).catch((error) => console.log('Reset race! ' + error));
+        )
+            .then((res) => {
+                return Promise.any(
+                    res.map((engine, index) => {
+                        if (engine.status === 'fulfilled') {
+                            const id: number = Number(carsControls[index].getAttribute('data-carId'));
+                            const car: HTMLDivElement | null =
+                                carsControls[index].querySelector<HTMLDivElement>('.car-img');
+                            isNull(car);
+                            car.classList.remove('broken');
+                            const flag: HTMLDivElement | null =
+                                carsControls[index].querySelector<HTMLDivElement>('.win-flag');
+                            isNull(flag);
+                            const currentEngine: engineInfo = engine.value;
+                            const time: number = currentEngine.distance / currentEngine.velocity;
+                            const velocity: number = (flag.offsetLeft - car.offsetLeft) / (time / 30);
+                            const draw = () => {
+                                const carPositionString: string = car.style.left;
+                                const carPosition: number = Number(
+                                    carPositionString.slice(0, carPositionString.length - 2)
+                                );
+                                const distance: number = Number(carPosition) + velocity;
+                                car.style.left = distance + 'px';
+                                if (
+                                    carPosition < flag.offsetLeft &&
+                                    !this.stopRaceStatus &&
+                                    !car.classList.contains('broken')
+                                ) {
+                                    requestAnimationFrame(draw);
+                                }
+                            };
+                            requestAnimationFrame(draw);
+                            return switchEngineToDrive(id, 'drive', this.raceController.signal)
+                                .then((data) => {
+                                    const currentCar: carInfo = JSON.parse(data);
+                                    return Promise.resolve({
+                                        name: currentCar.name,
+                                        id: currentCar.id,
+                                        time: Number((engine.value.distance / engine.value.velocity / 1000).toFixed(2)),
+                                    });
+                                })
+                                .catch((status) => {
+                                    if (status === 500) {
+                                        car.classList.add('broken');
+                                    }
+                                    return Promise.reject('car broken');
+                                })
+                                .finally(() => {
+                                    startStopEngine(id, 'stopped');
+                                });
+                        } else {
+                            return Promise.reject('car broken');
+                        }
+                    })
+                );
+            })
+            .then((winner) => {
+                isNull(this.winContainer);
+                this.winContainer.classList.add('show');
+                isNull(winner.id);
+                this.winContainer.textContent = winner.name + ' won!';
+                getWinner(winner.id).then((w) => {
+                    isNull(winner.id);
+                    if (!Object.keys(w).length) {
+                        createWinner({
+                            id: winner.id,
+                            wins: 1,
+                            time: winner.time,
+                        });
+                    } else {
+                        updateWinner({
+                            id: w.id,
+                            wins: w.wins + 1,
+                            time: w.time > winner.time ? winner.time : w.time,
+                        })
+                    }
+                });
+            })
+            .catch((error) => console.log('Reset race! ' + error));
     }
 
     stopRace(event: Event, raceButton: HTMLButtonElement) {
@@ -470,11 +533,11 @@ export default class GarageView extends View {
         currentButton.disabled = true;
         this.stopRaceStatus = true;
         isNull(this.carsContent);
-        const carsControls: HTMLDivElement[] =[...this.carsContent.querySelectorAll<HTMLDivElement>('.car-control')];
+        const carsControls: HTMLDivElement[] = [...this.carsContent.querySelectorAll<HTMLDivElement>('.car-control')];
         this.raceController.abort();
-        carsControls.map(async(carControl) => {
-            const id: number = Number(carControl.getAttribute('data-carId'));  
-            await startStopEngine(id, 'stopped');      
+        carsControls.map(async (carControl) => {
+            const id: number = Number(carControl.getAttribute('data-carId'));
+            await startStopEngine(id, 'stopped');
             const car: HTMLDivElement | null = carControl.querySelector<HTMLDivElement>('.car-img');
             isNull(car);
             car.style.left = '';

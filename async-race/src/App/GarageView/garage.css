@@ -146,7 +146,7 @@
 .broken {
     width: 75px;
     height: 60px;
-    background-image:  url(../../svg/fire.svg);
+    background-image: url(../../svg/fire.svg);
     background-repeat: no-repeat;
     background-position: center center;
     position: absolute;
@@ -236,11 +236,12 @@
 }
 
 .win-container {
-    display: none;
-    width: 0px;
+    /* display: none; */
+    visibility: hidden;
+    width: 0;
     height: 90%;
     color: red;
-    font-size: 150px;
+    font-size: 130px;
     font-weight: bold;
     position: absolute;
     justify-content: center;
@@ -251,9 +252,11 @@
 
 .show {
     display: flex;
+    visibility: visible;
+    width: 95%;
     opacity: 1;
-    width: 100%;
     transition: all 2s;
+    margin: 10px;
 }
 
 .cars-container {
