@@ -33,6 +33,7 @@
     padding: 10px;
     font-size: 22px;
     background-color: darkcyan;
+    cursor: pointer;
 }
 
 .create-car-button:hover,
@@ -53,6 +54,13 @@
     padding: 10px;
     font-size: 22px;
     background-color: cadetblue;
+    cursor: pointer;
+}
+
+.race-button:disabled:hover,
+.reset-button:disabled:hover {
+    background-color: cadetblue;
+    cursor: default;
 }
 
 .race-button:hover,
@@ -135,6 +143,16 @@
     margin-left: 68px;
 }
 
+.broken {
+    width: 75px;
+    height: 60px;
+    background-image:  url(../../svg/fire.svg);
+    background-repeat: no-repeat;
+    background-position: center center;
+    position: absolute;
+    z-index: 3;
+}
+
 .select-button,
 .remove-button {
     background-color: #7f46e2;
@@ -215,4 +233,29 @@
     mask-image: url(../../svg/flag.svg);
     position: absolute;
     right: 80px;
+}
+
+.win-container {
+    display: none;
+    width: 0px;
+    height: 90%;
+    color: red;
+    font-size: 150px;
+    font-weight: bold;
+    position: absolute;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    z-index: 6;
+}
+
+.show {
+    display: flex;
+    opacity: 1;
+    width: 100%;
+    transition: all 2s;
+}
+
+.cars-container {
+    position: relative;
 }
