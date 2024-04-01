@@ -31,10 +31,9 @@ export default class HeaderView extends View {
 
     static garageButton(router: Router) {
         router.navigate(BUTTONNAME.GARAGE.toLocaleLowerCase());
-        //getCars();
     }
 
     static winnersButton(router: Router) {
-        router.navigate(BUTTONNAME.GARAGE.toLocaleLowerCase());
+        router.navigate(BUTTONNAME.WINNERS.toLocaleLowerCase());
     }
 }

@@ -221,8 +221,6 @@
 .start-stop-container {
     display: flex;
     gap: 5px;
-    /* width: 200px;
-    height: 300px; */
     position: relative;
 }
 
@@ -239,8 +237,8 @@
     /* display: none; */
     visibility: hidden;
     width: 0;
-    height: 90%;
-    color: red;
+    height: 500px;
+    color: white;
     font-size: 130px;
     font-weight: bold;
     position: absolute;
@@ -248,17 +246,37 @@
     align-items: center;
     opacity: 0;
     z-index: 6;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
 }
 
 .show {
     display: flex;
     visibility: visible;
-    width: 95%;
+    width: 600px;
     opacity: 1;
     transition: all 2s;
-    margin: 10px;
 }
 
 .cars-container {
     position: relative;
+}
+
+@media (max-width: 900px) {
+    .create-update-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .win-container {
+        font-size: 90px;
+    }
+
+    .show {
+        width: 300px;
+    }
 }

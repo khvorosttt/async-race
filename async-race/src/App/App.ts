@@ -6,6 +6,7 @@ import './app.css';
 import './normalize.css';
 import GarageView from './GarageView/GarageView';
 import View from './View/view';
+import { WinnersView } from './WinnersView/WinnersView';
 
 export default class App {
     container: HTMLElement;
@@ -44,7 +45,10 @@ export default class App {
             },
             {
                 pagePath: 'winners',
-                callback: () => {},
+                callback: () => {
+                    const winners: View = new WinnersView();
+                    this.setView(winners);
+                },
             },
         ];
         return pages;

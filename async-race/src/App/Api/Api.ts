@@ -114,11 +114,17 @@ export const switchEngineToDrive = async (id: number, status: 'drive', signal: A
     }
 };
 
-export const getWinners = async (page: number) => {
-    const response: Response = await fetch(`${baseURL}${path.WINNERS}?_page=${page}&_limit=${ITEM_ON_PAGE_WINNERS}`);
+export const getWinners = async (_page: number, _sort: 'id' | 'wins' | 'time', _order: 'ASC' | 'DESC') => {
+    const response: Response = await fetch(
+        `${baseURL}${path.WINNERS}?_page=${_page}&_limit=${ITEM_ON_PAGE_WINNERS}&_sort=${_sort}&_order=${_order}`
+    );
     if (response.ok) {
-        const data: Promise<carInfo[]> = await response.json();
-        return data;
+        const data: winnerInfo[] = await response.json();
+        const totalCount: number = Number(response.headers.get('X-Total-Count'));
+        return {
+            data: data,
+            count: totalCount,
+        };
     } else {
         return Promise.reject(new Error(`Method getWinners not work. Status error: ${response.status}`));
     }

@@ -17,7 +17,6 @@ import Component from '../utils/base-component';
 import './garage.css';
 import { isNull } from '../utils/base-methods';
 import { arrayCarsName, randomColor, randomNumber } from './info';
-import { winnerInfo } from '../WinnersView/WinnersView';
 
 enum ActionWithCars {
     create = 'create',
@@ -426,6 +425,13 @@ export default class GarageView extends View {
     }
 
     async startRace(event: Event, resetButton: HTMLButtonElement) {
+        isNull(this.container);
+        const changeCars: HTMLDivElement | null = this.container.querySelector('.create-update-container');
+        isNull(changeCars);
+        changeCars.classList.add('disabled-area');
+        const generateButton: HTMLButtonElement | null = this.container.querySelector('.generate-button');
+        isNull(generateButton);
+        generateButton.disabled = true;
         this.raceController = new AbortController();
         this.stopRaceStatus = false;
         const currentButton: HTMLButtonElement = <HTMLButtonElement>event.currentTarget;
@@ -518,7 +524,7 @@ export default class GarageView extends View {
                             id: w.id,
                             wins: w.wins + 1,
                             time: w.time > winner.time ? winner.time : w.time,
-                        })
+                        });
                     }
                 });
             })
@@ -526,6 +532,13 @@ export default class GarageView extends View {
     }
 
     stopRace(event: Event, raceButton: HTMLButtonElement) {
+        isNull(this.container);
+        const changeCars: HTMLDivElement | null = this.container.querySelector('.create-update-container');
+        isNull(changeCars);
+        changeCars.classList.remove('disabled-area');
+        const generateButton: HTMLButtonElement | null = this.container.querySelector('.generate-button');
+        isNull(generateButton);
+        generateButton.disabled = false;
         const currentButton: HTMLButtonElement = <HTMLButtonElement>event.currentTarget;
         isNull(this.winContainer);
         this.winContainer.classList.remove('show');
