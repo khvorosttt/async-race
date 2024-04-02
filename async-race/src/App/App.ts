@@ -6,7 +6,7 @@ import './app.css';
 import './normalize.css';
 import GarageView from './GarageView/GarageView';
 import View from './View/view';
-import { WinnersView } from './WinnersView/WinnersView';
+import WinnersView from './WinnersView/WinnersView';
 
 export default class App {
     container: HTMLElement;
@@ -32,7 +32,6 @@ export default class App {
     createView() {
         this.router.navigate('garage');
     }
-    createContainer() {}
 
     initPages() {
         const pages: PageInfo[] = [

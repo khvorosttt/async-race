@@ -1,17 +1,11 @@
 import { ITEM_ON_PAGE_WINNERS, getCar, getWinners } from '../Api/Api';
-import { carInfo } from '../GarageView/GarageView';
 import View from '../View/view';
 import Component from '../utils/base-component';
 import { isNull } from '../utils/base-methods';
 import './winners.css';
+import { WinnerInfo } from '../interface/interface';
 
-export interface winnerInfo {
-    id: number;
-    wins: number;
-    time: number;
-}
-
-export class WinnersView extends View {
+export default class WinnersView extends View {
     static countAll: number = 0;
 
     private static currentPage: number = 1;
@@ -53,31 +47,33 @@ export class WinnersView extends View {
         const buttonPrev: HTMLButtonElement = new Component('button', '', 'Prev', [
             'button-prev',
         ]).getContainer<HTMLButtonElement>();
-        this.prevDisabled(buttonPrev);
+        WinnersView.prevDisabled(buttonPrev);
         buttonPrev.addEventListener('click', () => this.prevPage());
         const buttonNext: HTMLButtonElement = new Component('button', '', 'Next', [
             'button-next',
         ]).getContainer<HTMLButtonElement>();
-        this.nextDisabled(buttonNext);
+        WinnersView.nextDisabled(buttonNext);
         buttonNext.addEventListener('click', () => this.nextPage());
         pageButtonContainer.append(buttonPrev, buttonNext);
         pageControl.append(numberPage, pageButtonContainer);
         return pageControl;
     }
 
-    nextDisabled(button: HTMLButtonElement) {
+    static nextDisabled(button: HTMLButtonElement) {
+        const copyButton: HTMLButtonElement = button;
         if (WinnersView.currentPage * ITEM_ON_PAGE_WINNERS < WinnersView.countAll) {
-            button.disabled = false;
+            copyButton.disabled = false;
         } else {
-            button.disabled = true;
+            copyButton.disabled = true;
         }
     }
 
-    prevDisabled(button: HTMLButtonElement) {
+    static prevDisabled(button: HTMLButtonElement) {
+        const copyButton: HTMLButtonElement = button;
         if (WinnersView.currentPage > 1) {
-            button.disabled = false;
+            copyButton.disabled = false;
         } else {
-            button.disabled = true;
+            copyButton.disabled = true;
         }
     }
 
@@ -113,14 +109,13 @@ export class WinnersView extends View {
             'page-title',
         ]).getContainer<HTMLDivElement>();
         const pageControl: HTMLDivElement = this.createPageControl();
-        console.log(winnersList);
         isNull(this.tableContent);
         winnersList.append(headerTable, this.tableContent);
         this.winnersContent?.append(pageTitle, pageControl, winnersList);
     }
 
-    createWinnersList(winners: winnerInfo[]) {
-        winners.forEach((winner) => this.tableContent?.append(this.createWinnerItem(winner)));
+    createWinnersList(winners: WinnerInfo[]) {
+        winners.forEach((winner) => this.tableContent?.append(WinnersView.createWinnerItem(winner)));
     }
 
     createTableHeader() {
@@ -154,15 +149,18 @@ export class WinnersView extends View {
 
     async sortById(idField: HTMLDivElement, winsField: HTMLDivElement, timeField: HTMLDivElement) {
         this.sortBy = 'id';
+        const copyId: HTMLDivElement = idField;
+        const copyWins: HTMLDivElement = winsField;
+        const copyTime: HTMLDivElement = timeField;
         if (this.order === 'ASC') {
             this.order = 'DESC';
-            idField.textContent = 'Id ↓';
+            copyId.textContent = 'Id ↓';
         } else {
             this.order = 'ASC';
-            idField.textContent = 'Id ↑';
+            copyId.textContent = 'Id ↑';
         }
-        winsField.textContent = 'Wins';
-        timeField.textContent = 'Time';
+        copyWins.textContent = 'Wins';
+        copyTime.textContent = 'Time';
         const winnersData = await getWinners(WinnersView.currentPage, this.sortBy, this.order);
         this.tableContent?.replaceChildren();
         this.createWinnersList(winnersData.data);
@@ -170,37 +168,43 @@ export class WinnersView extends View {
 
     async sortByWins(idField: HTMLDivElement, winsField: HTMLDivElement, timeField: HTMLDivElement) {
         this.sortBy = 'wins';
+        const copyId: HTMLDivElement = idField;
+        const copyWins: HTMLDivElement = winsField;
+        const copyTime: HTMLDivElement = timeField;
         if (this.order === 'ASC') {
             this.order = 'DESC';
-            winsField.textContent = 'Wins ↓';
+            copyWins.textContent = 'Wins ↓';
         } else {
             this.order = 'ASC';
-            winsField.textContent = 'Wins ↑';
+            copyWins.textContent = 'Wins ↑';
         }
-        idField.textContent = 'Id';
-        timeField.textContent = 'Time';
+        copyId.textContent = 'Id';
+        copyTime.textContent = 'Time';
         const winnersData = await getWinners(WinnersView.currentPage, this.sortBy, this.order);
         this.tableContent?.replaceChildren();
         this.createWinnersList(winnersData.data);
     }
 
     async sortByTime(idField: HTMLDivElement, winsField: HTMLDivElement, timeField: HTMLDivElement) {
+        const copyId: HTMLDivElement = idField;
+        const copyWins: HTMLDivElement = winsField;
+        const copyTime: HTMLDivElement = timeField;
         this.sortBy = 'time';
         if (this.order === 'ASC') {
             this.order = 'DESC';
-            timeField.textContent = 'Time ↓';
+            copyTime.textContent = 'Time ↓';
         } else {
             this.order = 'ASC';
-            timeField.textContent = 'Time ↑';
+            copyTime.textContent = 'Time ↑';
         }
-        idField.textContent = 'Id';
-        winsField.textContent = 'Wins';
+        copyId.textContent = 'Id';
+        copyWins.textContent = 'Wins';
         const winnersData = await getWinners(WinnersView.currentPage, this.sortBy, this.order);
         this.tableContent?.replaceChildren();
         this.createWinnersList(winnersData.data);
     }
 
-    createWinnerItem(winner: winnerInfo) {
+    static createWinnerItem(winner: WinnerInfo) {
         const winnerItem: HTMLDivElement = new Component('div', '', '', [
             'winner-item-container',
         ]).getContainer<HTMLDivElement>();
