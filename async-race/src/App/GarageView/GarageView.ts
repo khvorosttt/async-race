@@ -345,7 +345,7 @@ export default class GarageView extends View {
     }
 
     generateCars() {
-        for (let i = 0; i < AMOUNT_GENERATES_CARS; i++) {
+        for (let i = 0; i < AMOUNT_GENERATES_CARS; i += 1) {
             const newCar: carInfo = {
                 name: arrayCarsName[randomNumber(0, arrayCarsName.length)],
                 color: randomColor(),
@@ -378,9 +378,13 @@ export default class GarageView extends View {
         isNull(flag);
         const time: number = engineInfo.distance / engineInfo.velocity;
         const signalStop: AbortController = new AbortController();
-        stopButton.addEventListener('click', () => {
-            this.stopDrive(requestAnimateId, carControl, signalStop);
-        });
+        stopButton.addEventListener(
+            'click',
+            () => {
+                this.stopDrive(requestAnimateId, carControl, signalStop);
+            },
+            { once: true }
+        );
         requestAnimateId = requestAnimationFrame(function draw() {
             const carPositionString: string = car.style.left;
             const carPosition: number = Number(carPositionString.slice(0, carPositionString.length - 2));

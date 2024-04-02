@@ -48,7 +48,7 @@ export const arrayCarsName: string[] = [
 
 export function randomColor() {
     let color: string = '#';
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 6; i += 1) {
         const value: number = Math.round(16 * Math.random());
         color += value.toString(16);
     }
@@ -56,5 +56,5 @@ export function randomColor() {
 }
 
 export function randomNumber(a: number, b: number) {
-    return Math.round((b - a) * Math.random()) + a;
+    return Math.floor((b - a) * Math.random()) + a;
 }
